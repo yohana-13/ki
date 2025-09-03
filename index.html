@@ -14,8 +14,8 @@
         .queue-box { width: 60px; height: 60px; transition: all 0.3s ease; flex-shrink: 0; }
         .pointers-area { height: 50px; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding-top: 4px; }
         .pointer { font-size: 0.8rem; font-weight: 600; white-space: nowrap; padding: 2px 6px; border-radius: 4px; }
-        .btn-active { background-color: #1d4ed8; color: white; }
-        .btn-inactive { background-color: #e5e7eb; color: #374151; }
+        .btn-active { background-color: #f43f5e; color: white; } /* rose-500 */
+        .btn-inactive { background-color: #e7e5e4; color: #374151; } /* stone-200 */
         #visualization-area.is-lifo { min-height: 400px; padding: 1rem; width: auto; }
         #visualization-area.is-lifo #queue-container { flex-direction: column-reverse; gap: 4px; }
         #visualization-area.is-lifo .box-wrapper { flex-direction: row; align-items: center; }
@@ -23,8 +23,8 @@
         .variable-tag {
             display: inline-flex;
             align-items: center;
-            background-color: #e0e7ff;
-            color: #3730a3;
+            background-color: #ede9fe; /* violet-100 */
+            color: #5b21b6; /* violet-800 */
             padding: 4px 8px;
             border-radius: 6px;
             font-family: 'monospace';
@@ -32,23 +32,23 @@
         }
         .variable-tag button {
             margin-left: 8px;
-            color: #ef4444;
+            color: #db2777; /* pink-600 */
             font-weight: bold;
         }
         .ll-arrow {
             font-size: 2rem;
-            color: #9ca3af; /* gray-400 */
+            color: #a8a29e; /* stone-400 */
             align-self: center;
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+<body class="bg-rose-50 flex items-center justify-center min-h-screen p-4">
 
     <div id="app" class="bg-white rounded-xl shadow-2xl p-6 md:p-8 w-full max-w-4xl">
         
         <header class="text-center mb-6">
             <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Visualisasi Struktur Data</h1>
-            <p id="queue-name" class="text-xl text-blue-600 font-semibold mt-2"></p>
+            <p id="queue-name" class="text-xl text-rose-600 font-semibold mt-2"></p>
         </header>
 
         <nav class="flex flex-wrap justify-center gap-2 mb-8">
@@ -59,14 +59,14 @@
             <button data-type="Circular" class="queue-type-btn px-4 py-2 rounded-lg font-semibold transition">Circular Queue</button>
         </nav>
 
-        <main class="bg-gray-50 p-4 rounded-lg min-h-[300px] flex items-center justify-center mb-6 overflow-x-auto">
+        <main class="bg-rose-100 p-4 rounded-lg min-h-[300px] flex items-center justify-center mb-6 overflow-x-auto">
             <div id="visualization-area" class="transition-all duration-300 w-full">
                 <div id="queue-container" class="flex flex-wrap justify-center items-start gap-2"></div>
             </div>
         </main>
 
         <footer class="grid grid-cols-1 gap-8">
-            <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="bg-rose-100 p-6 rounded-lg">
                 <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Kontrol</h2>
                 
                 <div id="controls-container"></div>
@@ -231,24 +231,24 @@
                             <div>
                                 <h3 class="font-semibold mb-2 text-lg">1. Definisi Variabel</h3>
                                 <div class="flex gap-2 mb-2">
-                                    <input type="text" id="var-name-input" placeholder="Nama (a-z)" class="w-1/2 p-2 border-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                                    <input type="number" id="var-value-input" placeholder="Nilai" class="w-1/2 p-2 border-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                                    <input type="text" id="var-name-input" placeholder="Nama (a-z)" class="w-1/2 p-2 border-2 rounded-lg outline-none focus:ring-2 focus:ring-rose-500">
+                                    <input type="number" id="var-value-input" placeholder="Nilai" class="w-1/2 p-2 border-2 rounded-lg outline-none focus:ring-2 focus:ring-rose-500">
                                 </div>
-                                <button id="add-var-btn" class="w-full bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-600 transition">Tambah/Ubah Variabel</button>
+                                <button id="add-var-btn" class="w-full bg-violet-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-violet-600 transition">Tambah/Ubah Variabel</button>
                                 <div id="variable-list" class="mt-3 space-x-2 space-y-2"></div>
                             </div>
                             <div>
                                 <h3 class="font-semibold mb-2 text-lg">2. Ekspresi & Aksi</h3>
-                                <input type="text" id="infix-input" value="a*(b+c)" class="w-full p-2 border-2 rounded-lg mb-2 outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ekspresi Infix...">
+                                <input type="text" id="infix-input" value="a*(b+c)" class="w-full p-2 border-2 rounded-lg mb-2 outline-none focus:ring-2 focus:ring-rose-500" placeholder="Ekspresi Infix...">
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
-                                    <button id="postfix-btn" class="bg-green-500 text-white font-bold py-2 px-3 rounded-lg hover:bg-green-600 transition">ke Postfix</button>
-                                    <button id="prefix-btn" class="bg-purple-500 text-white font-bold py-2 px-3 rounded-lg hover:bg-purple-600 transition">ke Prefix</button>
-                                    <button id="evaluate-btn" class="bg-blue-500 text-white font-bold py-2 px-3 rounded-lg hover:bg-blue-600 transition">Hitung Hasil</button>
+                                    <button id="postfix-btn" class="bg-teal-500 text-white font-bold py-2 px-3 rounded-lg hover:bg-teal-600 transition">ke Postfix</button>
+                                    <button id="prefix-btn" class="bg-violet-500 text-white font-bold py-2 px-3 rounded-lg hover:bg-violet-600 transition">ke Prefix</button>
+                                    <button id="evaluate-btn" class="bg-rose-500 text-white font-bold py-2 px-3 rounded-lg hover:bg-rose-600 transition">Hitung Hasil</button>
                                 </div>
                                 <div id="infix-navigation" class="hidden items-center justify-center gap-3">
-                                    <button id="prev-step-btn" class="bg-gray-500 text-white font-bold p-2 rounded-lg hover:bg-gray-600 transition text-sm">&lt;&lt;</button>
+                                    <button id="prev-step-btn" class="bg-slate-400 text-white font-bold p-2 rounded-lg hover:bg-slate-500 transition text-sm">&lt;&lt;</button>
                                     <span id="step-counter" class="font-mono text-sm"></span>
-                                    <button id="next-step-btn" class="bg-gray-500 text-white font-bold p-2 rounded-lg hover:bg-gray-600 transition text-sm">&gt;&gt;</button>
+                                    <button id="next-step-btn" class="bg-slate-400 text-white font-bold p-2 rounded-lg hover:bg-slate-500 transition text-sm">&gt;&gt;</button>
                                 </div>
                             </div>
                         </div>`;
@@ -256,17 +256,17 @@
                 } else {
                     elements.controlsContainer.innerHTML = `
                         <div class="flex flex-col sm:flex-row gap-3 mb-4">
-                            <input type="number" id="capacity-input" value="8" min="1" max="15" class="flex-grow w-full p-3 border-2 border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" placeholder="Kapasitas">
-                            <button id="reset-btn" class="bg-blue-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-600 transition shadow-md">Set Kapasitas</button>
+                            <input type="number" id="capacity-input" value="8" min="1" max="15" class="flex-grow w-full p-3 border-2 border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-rose-500" placeholder="Kapasitas">
+                            <button id="reset-btn" class="bg-rose-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-rose-600 transition shadow-md">Set Kapasitas</button>
                         </div>
                         <div class="flex flex-col sm:flex-row gap-3">
-                            <input type="text" id="value-input" placeholder="Masukkan angka..." class="flex-grow w-full p-3 border-2 border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                            <button id="enqueue-btn" class="bg-green-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-600 transition shadow-md">Enqueue</button>
-                            <button id="dequeue-btn" class="bg-red-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-600 transition shadow-md">Dequeue</button>
+                            <input type="text" id="value-input" placeholder="Masukkan angka..." class="flex-grow w-full p-3 border-2 border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-rose-500">
+                            <button id="enqueue-btn" class="bg-teal-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-teal-600 transition shadow-md">Enqueue</button>
+                            <button id="dequeue-btn" class="bg-pink-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-pink-600 transition shadow-md">Dequeue</button>
                         </div>
                         <div class="flex flex-col sm:flex-row gap-3 mt-3">
-                            <button id="peek-btn" class="flex-1 bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600 transition shadow-md">Peek</button>
-                            <button id="clear-btn" class="flex-1 bg-yellow-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-yellow-600 transition shadow-md">Clear</button>
+                            <button id="peek-btn" class="flex-1 bg-slate-400 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-500 transition shadow-md">Peek</button>
+                            <button id="clear-btn" class="flex-1 bg-amber-400 text-white font-bold py-3 px-6 rounded-lg hover:bg-amber-500 transition shadow-md">Clear</button>
                         </div>
                         <div id="queue-status-display" class="mt-4 text-center grid grid-cols-3 gap-2 bg-white p-2 rounded-lg border"></div>
                         `;
@@ -324,9 +324,9 @@
                     let item = itemsToRender[i];
                     if (currentDataStructure instanceof PriorityQueue && item) { item = item[1]; }
                     if (item !== undefined && item !== null) {
-                        box.textContent = item; box.classList.add('bg-blue-500', 'text-white', 'shadow-md');
+                        box.textContent = item; box.classList.add('bg-rose-400', 'text-white', 'shadow-md');
                     } else {
-                        box.classList.add('bg-gray-300', 'border-2', 'border-gray-400');
+                        box.classList.add('bg-stone-200', 'border-2', 'border-stone-300');
                     }
                     wrapper.appendChild(box); wrapper.appendChild(pointersArea); 
                     elements.queueContainer.appendChild(wrapper);
@@ -347,16 +347,16 @@
                 // RENDER POINTERS
                 if (currentQueueType === 'LIFO' && itemsToRender.length > 0) {
                      const topArea = document.getElementById(`pointers-area-${itemsToRender.length - 1}`);
-                     if(topArea) topArea.innerHTML = '<span class="pointer bg-orange-100 text-orange-800">Top</span>';
+                     if(topArea) topArea.innerHTML = '<span class="pointer bg-amber-100 text-amber-800">Top</span>';
                 } else if ((currentDataStructure instanceof ArrayQueue || currentDataStructure instanceof LinkedListQueue) && !currentDataStructure.isEmpty()) {
-                     document.getElementById(`pointers-area-0`).innerHTML = '<span class="pointer bg-green-100 text-green-800">Head</span>';
-                     document.getElementById(`pointers-area-${currentDataStructure.size() - 1}`).innerHTML = '<span class="pointer bg-red-100 text-red-800">Tail</span>';
+                     document.getElementById(`pointers-area-0`).innerHTML = '<span class="pointer bg-teal-100 text-teal-800">Head</span>';
+                     document.getElementById(`pointers-area-${currentDataStructure.size() - 1}`).innerHTML = '<span class="pointer bg-pink-100 text-pink-800">Tail</span>';
                 } else if (currentDataStructure instanceof PriorityQueue && !currentDataStructure.isEmpty()) {
-                     document.getElementById(`pointers-area-0`).innerHTML = '<span class="pointer bg-purple-100 text-purple-800">Next Out</span>';
+                     document.getElementById(`pointers-area-0`).innerHTML = '<span class="pointer bg-violet-100 text-violet-800">Next Out</span>';
                 } else if (currentDataStructure instanceof CircularQueue) {
                     if (!currentDataStructure.isEmpty()) {
-                        document.getElementById(`pointers-area-${currentDataStructure.head}`).innerHTML = '<span class="pointer bg-green-100 text-green-800">Head</span>';
-                        document.getElementById(`pointers-area-${currentDataStructure.tail}`).innerHTML = '<span class="pointer bg-red-100 text-red-800">Tail</span>';
+                        document.getElementById(`pointers-area-${currentDataStructure.head}`).innerHTML = '<span class="pointer bg-teal-100 text-teal-800">Head</span>';
+                        document.getElementById(`pointers-area-${currentDataStructure.tail}`).innerHTML = '<span class="pointer bg-pink-100 text-pink-800">Tail</span>';
                     }
                 }
                 // RENDER QUEUE STATUS
