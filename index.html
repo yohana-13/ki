@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualisasi Struktur Data</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .box-wrapper { display: flex; flex-direction: column; align-items: center; position: relative; }
+        .queue-box { width: 60px; height: 60px; transition: all 0.3s ease; flex-shrink: 0; }
+        .pointers-area { height: 50px; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding-top: 4px; }
+        .pointer { font-size: 0.8rem; font-weight: 600; white-space: nowrap; padding: 2px 6px; border-radius: 4px; }
+        .btn-active { background-color: #1d4ed8; color: white; }
+        .btn-inactive { background-color: #e5e7eb; color: #374151; }
+        #visualization-area.is-lifo { min-height: 400px; padding: 1rem; width: auto; }
+        #visualization-area.is-lifo #queue-container { flex-direction: column-reverse; gap: 4px; }
+        #visualization-area.is-lifo .box-wrapper { flex-direction: row; align-items: center; }
+        #visualization-area.is-lifo .pointers-area { height: 60px; width: 80px; justify-content: center; padding-left: 10px; }
+        .variable-tag {
+            display: inline-flex;
+            align-items: center;
+            background-color: #e0e7ff;
+            color: #3730a3;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: 'monospace';
+            font-size: 0.9em;
+        }
+        .variable-tag button {
+            margin-left: 8px;
+            color: #ef4444;
+            font-weight: bold;
+        }
+        .ll-arrow {
+            font-size: 2rem;
+            color: #9ca3af; /* gray-400 */
+            align-self: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div id="app" class="bg-white rounded-xl shadow-2xl p-6 md:p-8 w-full max-w-6xl">
+        
+        <header class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Visualisasi Struktur Data</h1>
+            <p id="queue-name" class="text-xl text-blue-600 font-semibold mt-2"></p>
+        </header>
+
+        <nav class="flex flex-wrap justify-center gap-2 mb-8">
+            <button data-type="LIFO" class="queue-type-btn px-4 py-2 rounded-lg font-semibold transition">LIFO (Stack)</button>
+            <button data-type="ArrayQueue" class="queue-type-btn px-4 py-2 rounded-lg font-semibold transition">Queue (Array)</button>
+            <button data-type="LinkedListQueue" class="queue-type-btn px-4 py-2 rounded-lg font-semibold transition">Queue (Linked List)</button>
+            <button data-type="Priority" class="queue-type-btn px-4 py-2 rounded-lg font-semibold transition">Priority Queue</button>
+            <button data-type="Circular" class="queue-type-btn px-4 py-2 rounded-lg font-semibold transition">Circular Queue</button>
+        </nav>
+
+        <main class="bg-gray-50 p-4 rounded-lg min-h-[300px] flex items-center justify-center mb-6 overflow-x-auto">
+            <div id="visualization-area" class="transition-all duration-300">
+                <div id="queue-container" class="flex items-start gap-2"></div>
+            </div>
+        </main>
+
+        <footer class="grid md:grid-cols-2 gap-8">
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Kontrol</h2>
+                
+                <div id="controls-container"></div>
+
+
+                 <p id="status-message" class="mt-4 text-center text-gray-600 h-6"></p>
+                 <div id="operation-log" class="mt-4 bg-white p-3 rounded-lg border border-gray-200 min-h-[120px]">
+                    <p class="text-gray-500 text-center">Hasil operasi akan ditampilkan di sini.</p>
+                 </div>
+            </div>
+            <div class="bg-blue-50 p-6 rounded-lg">
+                 <h2 class="text-2xl font-bold text-gray-800 mb-2">Penjelasan</h2>
+                 <div id="explanation-text" class="text-gray-700 space-y-2"></div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        // --- KELAS-KELAS STRUKTUR DATA ---
+        class ArrayQueue {
+            constructor(capacity) { this.queue = []; this.capacity = capacity; this.name = "Queue (Array)"; this.explanation = ["<strong>Prinsip:</strong> FIFO (First-In, First-Out).", "<strong>Implementasi:</strong> Menggunakan Array.", "<strong>Kelemahan:</strong> <strong>`Dequeue` lambat (O(n))</strong> karena harus menggeser semua elemen.", "<strong>Analogi:</strong> Antrean di loket."]; }
+            enqueue(item) { if (this.isFull()) { return { success: false, message: "Antrean Penuh!" }; } this.queue.push(item); return { success: true, message: `Nilai '${item}' ditambahkan.` }; }
+            dequeue() { if (this.isEmpty()) { return { item: null, message: "Antrean Kosong!" }; } const item = this.queue.shift(); return { item, message: `Nilai '${item}' dihapus.` }; }
+            peek() { return this.isEmpty() ? null : this.queue[0]; }
+            isEmpty() { return this.queue.length === 0; }
+            isFull() { return this.queue.length === this.capacity; }
+            size() { return this.queue.length; }
+            clear() { this.queue = []; }
+        }
+        class LinkedListQueue {
+            constructor(capacity) { 
+                this.head = null; this.tail = null; this.length = 0; this.capacity = capacity; this.name = "Queue (Linked List)"; this.explanation = ["<strong>Prinsip:</strong> FIFO (First-In, First-Out).", "<strong>Implementasi:</strong> Menggunakan Node yang terhubung (Linked List).", "<strong>Keuntungan:</strong> <strong>`Enqueue` & `Dequeue` sangat cepat (O(1))</strong> karena hanya memindahkan pointer.", "<strong>Analogi:</strong> Gerbong kereta api."]; 
+            }
+            enqueue(item) {
+                if (this.isFull()) { return { success: false, message: "Antrean Penuh!" }; }
+                const newNode = { value: item, next: null };
+                if (this.isEmpty()) { this.head = this.tail = newNode; } 
+                else { this.tail.next = newNode; this.tail = newNode; }
+                this.length++;
+                return { success: true, message: `Nilai '${item}' ditambahkan.` };
+            }
+            dequeue() {
+                if (this.isEmpty()) { return { item: null, message: "Antrean Kosong!" }; }
+                const item = this.head.value;
+                this.head = this.head.next;
+                if (!this.head) { this.tail = null; }
+                this.length--;
+                return { item, message: `Nilai '${item}' dihapus.` };
+            }
+            peek() { return this.isEmpty() ? null : this.head.value; }
+            isEmpty() { return this.length === 0; }
+            isFull() { return this.length === this.capacity; }
+            size() { return this.length; }
+            clear() { this.head = null; this.tail = null; this.length = 0; }
+            toArray() {
+                const arr = []; let current = this.head;
+                while(current) { arr.push(current.value); current = current.next; }
+                return arr;
+            }
+        }
+        class LIFOQueue {
+            constructor() { this.name = "LIFO (Stack)"; this.explanation = ["<strong>Prinsip:</strong> LIFO (Last-In, First-Out). Elemen terakhir masuk, pertama keluar.", "<strong>Analogi:</strong> Tumpukan piring.", "<strong>Operasi:</strong> `Push` (menambah di atas), `Pop` (mengambil dari atas).", "<strong>Kasus Penggunaan:</strong> Tombol Undo, histori browser, evaluasi ekspresi."]; }
+        }
+        class PriorityQueue {
+             constructor(capacity) { this.queue = []; this.capacity = capacity; this.name = "Priority Queue"; this.explanation = ["<strong>Prinsip:</strong> Elemen dengan <strong>prioritas tertinggi</strong> keluar duluan.", "<strong>Aturan:</strong> Angka lebih kecil = prioritas lebih tinggi.", "<strong>Analogi:</strong> Ruang Gawat Darurat (UGD) di rumah sakit.", "<strong>Kasus Penggunaan:</strong> Penjadwalan proses di OS, algoritma Dijkstra."]; }
+            enqueue(item) { if (this.isFull()) { return { success: false, message: "Antrean Penuh!" }; } const priority = parseInt(item); this.queue.push([priority, item]); this.queue.sort((a, b) => a[0] - b[0]); return { success: true, message: `Nilai '${item}' ditambahkan.` }; }
+            dequeue() { if (this.isEmpty()) { return { item: null, message: "Antrean Kosong!" }; } const [priority, item] = this.queue.shift(); return { item, message: `Nilai '${item}' (prioritas ${priority}) dihapus.` }; }
+            peek() { return this.isEmpty() ? null : this.queue[0][1]; }
+            isEmpty() { return this.queue.length === 0; }
+            isFull() { return this.queue.length === this.capacity; }
+            size() { return this.queue.length; }
+            clear() { this.queue = []; }
+        }
+        class CircularQueue {
+            constructor(capacity) { this.capacity = capacity; this.queue = new Array(capacity).fill(null); this.head = -1; this.tail = -1; this.name = "Circular Queue"; this.explanation = ["<strong>Prinsip:</strong> FIFO pada array yang 'melingkar'.", "<strong>Implementasi:</strong> Solusi efisien untuk antrean berbasis Array.", "<strong>Keuntungan:</strong> Menghilangkan pergeseran, membuat <strong>`Enqueue` & `Dequeue` jadi O(1)</strong>.", "<strong>Analogi:</strong> Lintasan lari atletik."]; }
+            enqueue(item) { if (this.isFull()) { return { success: false, message: "Antrean Penuh!" }; } if (this.isEmpty()) { this.head = 0; } this.tail = (this.tail + 1) % this.capacity; this.queue[this.tail] = item; return { success: true, message: `Nilai '${item}' masuk di indeks ${this.tail}.` }; }
+            dequeue() { if (this.isEmpty()) { return { item: null, message: "Antrean Kosong!" }; } const item = this.queue[this.head]; const dequeuedIndex = this.head; this.queue[this.head] = null; if (this.head === this.tail) { this.head = -1; this.tail = -1; } else { this.head = (this.head + 1) % this.capacity; } return { item, message: `Nilai '${item}' keluar dari indeks ${dequeuedIndex}.` }; }
+            peek() { return this.isEmpty() ? null : this.queue[this.head]; }
+            isEmpty() { return this.head === -1; }
+            isFull() { return !this.isEmpty() && (this.tail + 1) % this.capacity === this.head; }
+            size() { if (this.isEmpty()) return 0; if (this.tail >= this.head) return this.tail - this.head + 1; return this.capacity - this.head + this.tail + 1; }
+            clear() { this.queue.fill(null); this.head = -1; this.tail = -1; }
+        }
+
+        // --- LOGIKA APLIKASI ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // STATE
+            let currentQueueType = 'LIFO';
+            let currentDataStructure = new LIFOQueue();
+            let conversionSteps = [];
+            let currentStepIndex = 0;
+            let variableValues = {'a': 10, 'b': 5, 'c': 2, 'd': 3};
+
+            // DOM ELEMENTS
+            const elements = {
+                queueName: document.getElementById('queue-name'),
+                explanationText: document.getElementById('explanation-text'),
+                visualizationArea: document.getElementById('visualization-area'),
+                queueContainer: document.getElementById('queue-container'),
+                statusMessage: document.getElementById('status-message'),
+                operationLog: document.getElementById('operation-log'),
+                typeButtons: document.querySelectorAll('.queue-type-btn'),
+                controlsContainer: document.getElementById('controls-container'),
+            };
+
+            // --- LOGIC: Infix & Evaluation (Sama seperti sebelumnya) ---
+            const precedence = (op) => ({'+': 1, '-': 1, '*': 2, '/': 2, '^': 3}[op] || 0);
+            const isOperand = (char) => /^[a-zA-Z0-9]+$/.test(char);
+            function infixToPostfix(infix) {
+                const steps = []; const stack = []; let output = '';
+                const addStep = (token, desc) => steps.push({ token, desc, stack: [...stack], output });
+                addStep('', 'Proses dimulai. Stack dan output kosong.');
+                for (const token of infix) {
+                    if (isOperand(token)) {
+                        output += token; addStep(token, `Token '${token}' adalah operand, langsung ke output.`);
+                    } else if (token === '(') {
+                        stack.push(token); addStep(token, `Token '${token}' adalah '(', push ke stack.`);
+                    } else if (token === ')') {
+                        while (stack.length > 0 && stack[stack.length - 1] !== '(') { output += stack.pop(); }
+                        if(stack.length > 0) stack.pop();
+                        addStep(token, `Token '${token}' adalah ')', pop dari stack sampai '(' ditemukan.`);
+                    } else {
+                        while (stack.length > 0 && precedence(stack[stack.length - 1]) >= precedence(token)) { output += stack.pop(); }
+                        stack.push(token); addStep(token, `Token '${token}' adalah operator, pop operator prioritas lebih tinggi/sama, lalu push '${token}'.`);
+                    }
+                }
+                while (stack.length > 0) { output += stack.pop(); }
+                addStep('', `Iterasi selesai. Pop sisa operator dari stack.`);
+                addStep('', `Hasil Akhir Postfix: ${output}`);
+                return {steps, result: output};
+            }
+            function evaluatePostfix(postfix) {
+                const steps = []; const stack = [];
+                const addStep = (token, desc) => steps.push({ token, desc, stack: [...stack], output: '' });
+                addStep('', 'Evaluasi dimulai. Stack kosong.');
+                for (const token of postfix) {
+                    const value = variableValues[token] ?? (isFinite(token) ? parseFloat(token) : undefined);
+                    if (isOperand(token)) {
+                        if (value === undefined) { steps.push({error: `Variabel '${token}' belum didefinisikan!`}); return steps; }
+                        stack.push(value);
+                        addStep(token, `Token adalah operand '${token}', push nilainya (${value}) ke stack.`);
+                    } else {
+                        if (stack.length < 2) { steps.push({error: 'Ekspresi tidak valid.'}); return steps; }
+                        const val2 = stack.pop(); const val1 = stack.pop(); let result;
+                        switch (token) {
+                            case '+': result = val1 + val2; break;
+                            case '-': result = val1 - val2; break;
+                            case '*': result = val1 * val2; break;
+                            case '/': result = val1 / val2; break;
+                            case '^': result = Math.pow(val1, val2); break;
+                        }
+                        stack.push(result);
+                        addStep(token, `Token adalah operator '${token}'. Pop ${val2} dan ${val1}, hitung ${val1} ${token} ${val2} = ${result}, lalu push hasilnya.`);
+                    }
+                }
+                if (stack.length !== 1) { steps.push({error: 'Ekspresi tidak valid.'}); return steps; }
+                addStep('', `Evaluasi selesai. Hasil akhir: ${stack[0]}`);
+                return steps;
+            }
+            
+            // --- UI RENDER FUNCTIONS ---
+            function renderControls() {
+                elements.controlsContainer.innerHTML = '';
+                if (currentQueueType === 'LIFO') {
+                    elements.controlsContainer.innerHTML = `
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                            <div>
+                                <h3 class="font-semibold mb-2 text-lg">1. Definisi Variabel</h3>
+                                <div class="flex gap-2 mb-2">
+                                    <input type="text" id="var-name-input" placeholder="Nama (a-z)" class="w-1/2 p-2 border-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                                    <input type="number" id="var-value-input" placeholder="Nilai" class="w-1/2 p-2 border-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <button id="add-var-btn" class="w-full bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-600 transition">Tambah/Ubah Variabel</button>
+                                <div id="variable-list" class="mt-3 space-x-2 space-y-2"></div>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold mb-2 text-lg">2. Ekspresi & Aksi</h3>
+                                <input type="text" id="infix-input" value="a*(b+c)" class="w-full p-2 border-2 rounded-lg mb-2 outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ekspresi Infix...">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
+                                    <button id="postfix-btn" class="bg-green-500 text-white font-bold py-2 px-3 rounded-lg hover:bg-green-600 transition">ke Postfix</button>
+                                    <button id="prefix-btn" class="bg-purple-500 text-white font-bold py-2 px-3 rounded-lg hover:bg-purple-600 transition">ke Prefix</button>
+                                    <button id="evaluate-btn" class="bg-blue-500 text-white font-bold py-2 px-3 rounded-lg hover:bg-blue-600 transition">Hitung Hasil</button>
+                                </div>
+                                <div id="infix-navigation" class="hidden items-center justify-center gap-3">
+                                    <button id="prev-step-btn" class="bg-gray-500 text-white font-bold p-2 rounded-lg hover:bg-gray-600 transition text-sm">&lt;&lt;</button>
+                                    <span id="step-counter" class="font-mono text-sm"></span>
+                                    <button id="next-step-btn" class="bg-gray-500 text-white font-bold p-2 rounded-lg hover:bg-gray-600 transition text-sm">&gt;&gt;</button>
+                                </div>
+                            </div>
+                        </div>`;
+                    renderVariableList();
+                } else {
+                    elements.controlsContainer.innerHTML = `
+                        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+                            <input type="number" id="capacity-input" value="8" min="1" max="15" class="flex-grow w-full p-3 border-2 border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" placeholder="Kapasitas">
+                            <button id="reset-btn" class="bg-blue-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-600 transition shadow-md">Set Kapasitas</button>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <input type="text" id="value-input" placeholder="Masukkan angka..." class="flex-grow w-full p-3 border-2 border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                            <button id="enqueue-btn" class="bg-green-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-600 transition shadow-md">Enqueue</button>
+                            <button id="dequeue-btn" class="bg-red-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-600 transition shadow-md">Dequeue</button>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3 mt-3">
+                            <button id="peek-btn" class="flex-1 bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600 transition shadow-md">Peek</button>
+                            <button id="clear-btn" class="flex-1 bg-yellow-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-yellow-600 transition shadow-md">Clear</button>
+                        </div>
+                        <div id="queue-status-display" class="mt-4 text-center grid grid-cols-3 gap-2 bg-white p-2 rounded-lg border"></div>
+                        `;
+                }
+            }
+            function renderVariableList() {
+                const listEl = document.getElementById('variable-list');
+                if (!listEl) return;
+                listEl.innerHTML = '';
+                Object.entries(variableValues).forEach(([name, value]) => {
+                    const tag = document.createElement('span'); tag.className = 'variable-tag';
+                    tag.innerHTML = `${name} = ${value} <button data-name="${name}" class="remove-var-btn">x</button>`;
+                    listEl.appendChild(tag);
+                });
+            }
+            function updateUI() {
+                elements.queueName.textContent = currentDataStructure.name;
+                elements.explanationText.innerHTML = currentDataStructure.explanation.map(line => `<p>${line}</p>`).join('');
+                elements.typeButtons.forEach(btn => {
+                    btn.classList.toggle('btn-active', btn.dataset.type === currentQueueType);
+                    btn.classList.toggle('btn-inactive', btn.dataset.type !== currentQueueType);
+                });
+                elements.visualizationArea.classList.toggle('is-lifo', currentQueueType === 'LIFO');
+                elements.queueContainer.innerHTML = '';
+                let itemsToRender = []; let capacity = 8;
+                if (currentQueueType === 'LIFO') {
+                    itemsToRender = conversionSteps.length > 0 ? conversionSteps[currentStepIndex]?.stack || [] : [];
+                    capacity = Math.max(8, itemsToRender.length);
+                } else if (currentDataStructure instanceof LinkedListQueue) {
+                    itemsToRender = currentDataStructure.toArray();
+                    capacity = currentDataStructure.capacity;
+                }
+                else {
+                    itemsToRender = currentDataStructure.queue;
+                    capacity = currentDataStructure.capacity;
+                }
+                const isLL = currentDataStructure instanceof LinkedListQueue;
+                const size = itemsToRender.length;
+
+                for (let i = 0; i < (isLL ? size : capacity); i++) {
+                    const wrapper = document.createElement('div'); wrapper.className = 'box-wrapper';
+                    const box = document.createElement('div'); box.className = 'queue-box flex items-center justify-center rounded-lg font-bold text-lg';
+                    const pointersArea = document.createElement('div'); pointersArea.className = 'pointers-area'; pointersArea.id = `pointers-area-${i}`;
+                    let item = itemsToRender[i];
+                    if (currentDataStructure instanceof PriorityQueue && item) { item = item[1]; }
+                    if (item !== undefined && item !== null) {
+                        box.textContent = item; box.classList.add('bg-blue-500', 'text-white', 'shadow-md');
+                    } else {
+                        box.classList.add('bg-gray-300', 'border-2', 'border-gray-400');
+                    }
+                    wrapper.appendChild(box); wrapper.appendChild(pointersArea); 
+                    elements.queueContainer.appendChild(wrapper);
+
+                    if (isLL && i < size - 1) {
+                        const arrow = document.createElement('div');
+                        arrow.className = 'll-arrow';
+                        arrow.innerHTML = '&rarr;';
+                        elements.queueContainer.appendChild(arrow);
+                    }
+                }
+                 if(isLL && size === 0) {
+                    const placeholder = document.createElement('div');
+                    placeholder.textContent = 'null';
+                    placeholder.className = 'text-gray-400 font-mono';
+                    elements.queueContainer.appendChild(placeholder);
+                }
+                // RENDER POINTERS
+                if (currentQueueType === 'LIFO' && itemsToRender.length > 0) {
+                     const topArea = document.getElementById(`pointers-area-${itemsToRender.length - 1}`);
+                     if(topArea) topArea.innerHTML = '<span class="pointer bg-orange-100 text-orange-800">Top</span>';
+                } else if ((currentDataStructure instanceof ArrayQueue || currentDataStructure instanceof LinkedListQueue) && !currentDataStructure.isEmpty()) {
+                     document.getElementById(`pointers-area-0`).innerHTML = '<span class="pointer bg-green-100 text-green-800">Head</span>';
+                     document.getElementById(`pointers-area-${currentDataStructure.size() - 1}`).innerHTML = '<span class="pointer bg-red-100 text-red-800">Tail</span>';
+                } else if (currentDataStructure instanceof PriorityQueue && !currentDataStructure.isEmpty()) {
+                     document.getElementById(`pointers-area-0`).innerHTML = '<span class="pointer bg-purple-100 text-purple-800">Next Out</span>';
+                } else if (currentDataStructure instanceof CircularQueue) {
+                    if (!currentDataStructure.isEmpty()) {
+                        document.getElementById(`pointers-area-${currentDataStructure.head}`).innerHTML = '<span class="pointer bg-green-100 text-green-800">Head</span>';
+                        document.getElementById(`pointers-area-${currentDataStructure.tail}`).innerHTML = '<span class="pointer bg-red-100 text-red-800">Tail</span>';
+                    }
+                }
+                // RENDER QUEUE STATUS
+                const statusDisplay = document.getElementById('queue-status-display');
+                if (statusDisplay) {
+                    statusDisplay.innerHTML = `
+                        <div><span class="font-semibold block">Ukuran</span> ${currentDataStructure.size()}</div>
+                        <div><span class="font-semibold block">Kosong?</span> ${currentDataStructure.isEmpty() ? 'Ya' : 'Tidak'}</div>
+                        <div><span class="font-semibold block">Penuh?</span> ${currentDataStructure.isFull() ? 'Ya' : 'Tidak'}</div>
+                    `;
+                }
+            }
+            function displayConversionStep() {
+                if (conversionSteps.length === 0) return;
+                const step = conversionSteps[currentStepIndex];
+                if(step.error) {
+                    elements.operationLog.innerHTML = `<p class="font-semibold text-red-600">${step.error}</p>`;
+                    document.getElementById('infix-navigation')?.classList.add('hidden');
+                    return;
+                }
+                updateUI();
+                document.getElementById('step-counter').textContent = `Langkah ${currentStepIndex + 1}/${conversionSteps.length}`;
+                let logMsg = `<p class="font-semibold mb-1">${step.desc}</p>`;
+                if (step.output) { logMsg += `<p><strong>Output:</strong> <span class="font-mono">${step.output}</span></p>`; }
+                elements.operationLog.innerHTML = logMsg;
+                document.getElementById('prev-step-btn').disabled = currentStepIndex === 0;
+                document.getElementById('next-step-btn').disabled = currentStepIndex === conversionSteps.length - 1;
+            }
+
+            // --- EVENT HANDLERS ---
+            function resetState() {
+                const capacityEl = document.getElementById('capacity-input');
+                const capacity = capacityEl ? parseInt(capacityEl.value) || 8 : 8;
+                switch (currentQueueType) {
+                    case 'LIFO': currentDataStructure = new LIFOQueue(); break;
+                    case 'ArrayQueue': currentDataStructure = new ArrayQueue(capacity); break;
+                    case 'LinkedListQueue': currentDataStructure = new LinkedListQueue(capacity); break;
+                    case 'Priority': currentDataStructure = new PriorityQueue(capacity); break;
+                    case 'Circular': currentDataStructure = new CircularQueue(capacity); break;
+                }
+                conversionSteps = []; currentStepIndex = 0;
+                elements.statusMessage.textContent = '';
+                elements.operationLog.innerHTML = '<p class="text-gray-500 text-center">Silakan mulai operasi.</p>';
+                renderControls(); updateUI();
+            }
+
+            function startConversion(type) {
+                const infixEl = document.getElementById('infix-input');
+                const infix = infixEl.value.replace(/\s+/g, '');
+                if(!infix) { elements.statusMessage.textContent = "Ekspresi Infix kosong!"; return; }
+                let steps;
+                if(type === 'postfix') {
+                    steps = infixToPostfix(infix).steps;
+                } else if(type === 'prefix') {
+                    const reversedInfix = infix.split('').reverse().join('').replace(/\(/g, 'temp').replace(/\)/g, '(').replace(/temp/g, ')');
+                    const { steps: postfixSteps } = infixToPostfix(reversedInfix);
+                    steps = postfixSteps.map(step => ({ ...step, output: step.output.split('').reverse().join('') }));
+                } else if(type === 'evaluate') {
+                    const {result: postfixResult} = infixToPostfix(infix);
+                    steps = evaluatePostfix(postfixResult);
+                }
+                conversionSteps = steps; currentStepIndex = 0;
+                document.getElementById('infix-navigation').classList.remove('hidden');
+                displayConversionStep();
+            }
+
+            function handleSimpleQueueOp(op) {
+                const valueEl = document.getElementById('value-input');
+                let result, opName, value;
+                switch(op) {
+                    case 'enqueue':
+                        value = valueEl.value;
+                        if (!value || !/^\d+$/.test(value)) { elements.statusMessage.textContent = "Input harus berupa angka!"; return; }
+                        result = currentDataStructure.enqueue(value);
+                        opName = 'Enqueue';
+                        break;
+                    case 'dequeue': result = currentDataStructure.dequeue(); opName = 'Dequeue'; break;
+                    case 'peek': result = { item: currentDataStructure.peek() }; opName = 'Peek'; break;
+                    case 'clear': currentDataStructure.clear(); result = { success: true }; opName = 'Clear'; break;
+                }
+                
+                elements.statusMessage.textContent = result.message || `${opName} berhasil.`;
+                let logMsg = `<strong>Operasi:</strong> ${opName}`;
+                if (value) logMsg += ` nilai <strong>${value}</strong>.`;
+                if (op === 'peek') logMsg += `. Elemen depan: <strong>${result.item ?? 'Kosong'}</strong>.`;
+                else if (op === 'dequeue' && result.item !== null) logMsg += ` nilai <strong>${result.item}</strong>.`;
+                else if (op === 'clear') logMsg += `. Semua elemen dihapus.`;
+                logMsg += `<br><strong>Status:</strong> ${result.message || 'Berhasil.'}`;
+                elements.operationLog.innerHTML = logMsg;
+                if (valueEl) valueEl.value = '';
+                updateUI();
+            }
+
+            // --- EVENT LISTENERS ---
+            elements.typeButtons.forEach(button => button.addEventListener('click', (e) => {
+                currentQueueType = e.target.dataset.type;
+                resetState();
+            }));
+
+            elements.controlsContainer.addEventListener('click', (e) => {
+                const target = e.target;
+                const targetId = target.id;
+                // LIFO
+                if (targetId === 'postfix-btn') startConversion('postfix');
+                else if (targetId === 'prefix-btn') startConversion('prefix');
+                else if (targetId === 'evaluate-btn') startConversion('evaluate');
+                else if (targetId === 'next-step-btn') { if(currentStepIndex < conversionSteps.length - 1) { currentStepIndex++; displayConversionStep(); } }
+                else if (targetId === 'prev-step-btn') { if(currentStepIndex > 0) { currentStepIndex--; displayConversionStep(); } }
+                else if (targetId === 'add-var-btn') {
+                    const name = document.getElementById('var-name-input').value.trim();
+                    const value = document.getElementById('var-value-input').value.trim();
+                    if (/^[a-zA-Z]$/.test(name) && value !== '' && !isNaN(value)) {
+                        variableValues[name] = parseFloat(value); renderVariableList();
+                        document.getElementById('var-name-input').value = ''; document.getElementById('var-value-input').value = '';
+                        elements.statusMessage.textContent = `Variabel ${name} = ${value} disimpan.`;
+                    } else {
+                        elements.statusMessage.textContent = "Nama harus 1 huruf, nilai harus angka.";
+                    }
+                } else if (target.classList.contains('remove-var-btn')) {
+                    const name = target.dataset.name;
+                    delete variableValues[name]; renderVariableList();
+                }
+                // Other Queues
+                else if (targetId === 'reset-btn') resetState();
+                else if (targetId === 'enqueue-btn') handleSimpleQueueOp('enqueue');
+                else if (targetId === 'dequeue-btn') handleSimpleQueueOp('dequeue');
+                else if (targetId === 'peek-btn') handleSimpleQueueOp('peek');
+                else if (targetId === 'clear-btn') handleSimpleQueueOp('clear');
+            });
+            
+            elements.controlsContainer.addEventListener('keydown', (e) => {
+                if (e.target.id === 'value-input' && e.key === 'Enter') {
+                    handleSimpleQueueOp('enqueue');
+                }
+            });
+
+            // --- INITIAL RENDER ---
+            resetState();
+        });
+    </script>
+</body>
+</html>
+
