@@ -127,9 +127,33 @@
         }
         class PriorityQueue {
              constructor(capacity) { this.queue = []; this.capacity = capacity; this.name = "Priority Queue"; }
-            enqueue(item) { if (this.isFull()) { return { success: false, message: "Antrean Penuh!" }; } const priority = parseInt(item); this.queue.push([priority, item]); this.queue.sort((a, b) => a[0] - b[0]); return { success: true, message: `Nilai '${item}' ditambahkan.` }; }
-            dequeue() { if (this.isEmpty()) { return { item: null, message: "Antrean Kosong!" }; } const [priority, item] = this.queue.shift(); return { item, message: `Nilai '${item}' (prioritas ${priority}) dihapus.` }; }
-            peek() { return this.isEmpty() ? null : this.queue[0][1]; }
+            enqueue(item) { 
+                if (this.isFull()) { return { success: false, message: "Antrean Penuh!" }; } 
+                const priority = parseInt(item); 
+                this.queue.push([priority, item]); // Hanya menambahkan di akhir
+                return { success: true, message: `Nilai '${item}' ditambahkan.` }; 
+            }
+            dequeue() { 
+                if (this.isEmpty()) { return { item: null, message: "Antrean Kosong!" }; }
+                let highestPriorityIndex = 0;
+                for (let i = 1; i < this.queue.length; i++) {
+                    if (this.queue[i][0] < this.queue[highestPriorityIndex][0]) {
+                        highestPriorityIndex = i;
+                    }
+                }
+                const [priority, item] = this.queue.splice(highestPriorityIndex, 1)[0];
+                return { item, message: `Nilai '${item}' (prioritas ${priority}) dihapus.` }; 
+            }
+            peek() { 
+                if (this.isEmpty()) { return null; }
+                let highestPriorityItem = this.queue[0];
+                for (let i = 1; i < this.queue.length; i++) {
+                    if (this.queue[i][0] < highestPriorityItem[0]) {
+                        highestPriorityItem = this.queue[i];
+                    }
+                }
+                return highestPriorityItem[1];
+            }
             isEmpty() { return this.queue.length === 0; }
             isFull() { return this.queue.length === this.capacity; }
             size() { return this.queue.length; }
@@ -317,14 +341,16 @@
                 const isLL = currentDataStructure instanceof LinkedListQueue;
                 const size = itemsToRender.length;
 
-                for (let i = 0; i < (isLL ? size : capacity); i++) {
+                for (let i = 0; i < capacity; i++) {
+                    if (isLL && i >= size) break;
+                    
                     const wrapper = document.createElement('div'); wrapper.className = 'box-wrapper';
                     const box = document.createElement('div'); box.className = 'queue-box flex items-center justify-center rounded-lg font-bold text-lg';
                     const pointersArea = document.createElement('div'); pointersArea.className = 'pointers-area'; pointersArea.id = `pointers-area-${i}`;
                     let item = itemsToRender[i];
                     if (currentDataStructure instanceof PriorityQueue && item) { item = item[1]; }
                     if (item !== undefined && item !== null) {
-                        box.textContent = item; box.classList.add('bg-rose-400', 'text-white', 'shadow-md');
+                        box.textContent = item; box.classList.add('bg-white', 'text-gray-800', 'shadow-md', 'border-2', 'border-rose-400');
                     } else {
                         box.classList.add('bg-stone-200', 'border-2', 'border-stone-300');
                     }
@@ -338,7 +364,7 @@
                         elements.queueContainer.appendChild(arrow);
                     }
                 }
-                 if(isLL && size === 0) {
+                 if(isLL && size === 0 && isQueueViewInitialized) {
                     const placeholder = document.createElement('div');
                     placeholder.textContent = 'null';
                     placeholder.className = 'text-gray-400 font-mono';
@@ -352,7 +378,13 @@
                      document.getElementById(`pointers-area-0`).innerHTML = '<span class="pointer bg-teal-100 text-teal-800">Head</span>';
                      document.getElementById(`pointers-area-${currentDataStructure.size() - 1}`).innerHTML = '<span class="pointer bg-pink-100 text-pink-800">Tail</span>';
                 } else if (currentDataStructure instanceof PriorityQueue && !currentDataStructure.isEmpty()) {
-                     document.getElementById(`pointers-area-0`).innerHTML = '<span class="pointer bg-violet-100 text-violet-800">Next Out</span>';
+                     let highestPriorityIndex = 0;
+                     for (let i = 1; i < currentDataStructure.queue.length; i++) {
+                         if (currentDataStructure.queue[i][0] < currentDataStructure.queue[highestPriorityIndex][0]) {
+                             highestPriorityIndex = i;
+                         }
+                     }
+                     document.getElementById(`pointers-area-${highestPriorityIndex}`).innerHTML = '<span class="pointer bg-violet-100 text-violet-800">Next Out</span>';
                 } else if (currentDataStructure instanceof CircularQueue) {
                     if (!currentDataStructure.isEmpty()) {
                         document.getElementById(`pointers-area-${currentDataStructure.head}`).innerHTML = '<span class="pointer bg-teal-100 text-teal-800">Head</span>';
