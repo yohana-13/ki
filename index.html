@@ -44,7 +44,7 @@
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
-    <div id="app" class="bg-white rounded-xl shadow-2xl p-6 md:p-8 w-full max-w-6xl">
+    <div id="app" class="bg-white rounded-xl shadow-2xl p-6 md:p-8 w-full max-w-4xl">
         
         <header class="text-center mb-6">
             <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Visualisasi Struktur Data</h1>
@@ -60,12 +60,12 @@
         </nav>
 
         <main class="bg-gray-50 p-4 rounded-lg min-h-[300px] flex items-center justify-center mb-6 overflow-x-auto">
-            <div id="visualization-area" class="transition-all duration-300">
-                <div id="queue-container" class="flex items-start gap-2"></div>
+            <div id="visualization-area" class="transition-all duration-300 w-full">
+                <div id="queue-container" class="flex flex-wrap justify-center items-start gap-2"></div>
             </div>
         </main>
 
-        <footer class="grid md:grid-cols-2 gap-8">
+        <footer class="grid grid-cols-1 gap-8">
             <div class="bg-gray-50 p-6 rounded-lg">
                 <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Kontrol</h2>
                 
@@ -77,10 +77,6 @@
                     <p class="text-gray-500 text-center">Hasil operasi akan ditampilkan di sini.</p>
                  </div>
             </div>
-            <div class="bg-blue-50 p-6 rounded-lg">
-                 <h2 class="text-2xl font-bold text-gray-800 mb-2">Penjelasan</h2>
-                 <div id="explanation-text" class="text-gray-700 space-y-2"></div>
-            </div>
         </footer>
 
     </div>
@@ -88,7 +84,7 @@
     <script>
         // --- KELAS-KELAS STRUKTUR DATA ---
         class ArrayQueue {
-            constructor(capacity) { this.queue = []; this.capacity = capacity; this.name = "Queue (Array)"; this.explanation = ["<strong>Prinsip:</strong> FIFO (First-In, First-Out).", "<strong>Implementasi:</strong> Menggunakan Array.", "<strong>Kelemahan:</strong> <strong>`Dequeue` lambat (O(n))</strong> karena harus menggeser semua elemen.", "<strong>Analogi:</strong> Antrean di loket."]; }
+            constructor(capacity) { this.queue = []; this.capacity = capacity; this.name = "Queue (Array)"; }
             enqueue(item) { if (this.isFull()) { return { success: false, message: "Antrean Penuh!" }; } this.queue.push(item); return { success: true, message: `Nilai '${item}' ditambahkan.` }; }
             dequeue() { if (this.isEmpty()) { return { item: null, message: "Antrean Kosong!" }; } const item = this.queue.shift(); return { item, message: `Nilai '${item}' dihapus.` }; }
             peek() { return this.isEmpty() ? null : this.queue[0]; }
@@ -98,9 +94,7 @@
             clear() { this.queue = []; }
         }
         class LinkedListQueue {
-            constructor(capacity) { 
-                this.head = null; this.tail = null; this.length = 0; this.capacity = capacity; this.name = "Queue (Linked List)"; this.explanation = ["<strong>Prinsip:</strong> FIFO (First-In, First-Out).", "<strong>Implementasi:</strong> Menggunakan Node yang terhubung (Linked List).", "<strong>Keuntungan:</strong> <strong>`Enqueue` & `Dequeue` sangat cepat (O(1))</strong> karena hanya memindahkan pointer.", "<strong>Analogi:</strong> Gerbong kereta api."]; 
-            }
+            constructor(capacity) { this.head = null; this.tail = null; this.length = 0; this.capacity = capacity; this.name = "Queue (Linked List)"; }
             enqueue(item) {
                 if (this.isFull()) { return { success: false, message: "Antrean Penuh!" }; }
                 const newNode = { value: item, next: null };
@@ -129,10 +123,10 @@
             }
         }
         class LIFOQueue {
-            constructor() { this.name = "LIFO (Stack)"; this.explanation = ["<strong>Prinsip:</strong> LIFO (Last-In, First-Out). Elemen terakhir masuk, pertama keluar.", "<strong>Analogi:</strong> Tumpukan piring.", "<strong>Operasi:</strong> `Push` (menambah di atas), `Pop` (mengambil dari atas).", "<strong>Kasus Penggunaan:</strong> Tombol Undo, histori browser, evaluasi ekspresi."]; }
+            constructor() { this.name = "LIFO (Stack)"; }
         }
         class PriorityQueue {
-             constructor(capacity) { this.queue = []; this.capacity = capacity; this.name = "Priority Queue"; this.explanation = ["<strong>Prinsip:</strong> Elemen dengan <strong>prioritas tertinggi</strong> keluar duluan.", "<strong>Aturan:</strong> Angka lebih kecil = prioritas lebih tinggi.", "<strong>Analogi:</strong> Ruang Gawat Darurat (UGD) di rumah sakit.", "<strong>Kasus Penggunaan:</strong> Penjadwalan proses di OS, algoritma Dijkstra."]; }
+             constructor(capacity) { this.queue = []; this.capacity = capacity; this.name = "Priority Queue"; }
             enqueue(item) { if (this.isFull()) { return { success: false, message: "Antrean Penuh!" }; } const priority = parseInt(item); this.queue.push([priority, item]); this.queue.sort((a, b) => a[0] - b[0]); return { success: true, message: `Nilai '${item}' ditambahkan.` }; }
             dequeue() { if (this.isEmpty()) { return { item: null, message: "Antrean Kosong!" }; } const [priority, item] = this.queue.shift(); return { item, message: `Nilai '${item}' (prioritas ${priority}) dihapus.` }; }
             peek() { return this.isEmpty() ? null : this.queue[0][1]; }
@@ -142,7 +136,7 @@
             clear() { this.queue = []; }
         }
         class CircularQueue {
-            constructor(capacity) { this.capacity = capacity; this.queue = new Array(capacity).fill(null); this.head = -1; this.tail = -1; this.name = "Circular Queue"; this.explanation = ["<strong>Prinsip:</strong> FIFO pada array yang 'melingkar'.", "<strong>Implementasi:</strong> Solusi efisien untuk antrean berbasis Array.", "<strong>Keuntungan:</strong> Menghilangkan pergeseran, membuat <strong>`Enqueue` & `Dequeue` jadi O(1)</strong>.", "<strong>Analogi:</strong> Lintasan lari atletik."]; }
+            constructor(capacity) { this.capacity = capacity; this.queue = new Array(capacity).fill(null); this.head = -1; this.tail = -1; this.name = "Circular Queue"; }
             enqueue(item) { if (this.isFull()) { return { success: false, message: "Antrean Penuh!" }; } if (this.isEmpty()) { this.head = 0; } this.tail = (this.tail + 1) % this.capacity; this.queue[this.tail] = item; return { success: true, message: `Nilai '${item}' masuk di indeks ${this.tail}.` }; }
             dequeue() { if (this.isEmpty()) { return { item: null, message: "Antrean Kosong!" }; } const item = this.queue[this.head]; const dequeuedIndex = this.head; this.queue[this.head] = null; if (this.head === this.tail) { this.head = -1; this.tail = -1; } else { this.head = (this.head + 1) % this.capacity; } return { item, message: `Nilai '${item}' keluar dari indeks ${dequeuedIndex}.` }; }
             peek() { return this.isEmpty() ? null : this.queue[this.head]; }
@@ -160,11 +154,11 @@
             let conversionSteps = [];
             let currentStepIndex = 0;
             let variableValues = {'a': 10, 'b': 5, 'c': 2, 'd': 3};
+            let isQueueViewInitialized = false;
 
             // DOM ELEMENTS
             const elements = {
                 queueName: document.getElementById('queue-name'),
-                explanationText: document.getElementById('explanation-text'),
                 visualizationArea: document.getElementById('visualization-area'),
                 queueContainer: document.getElementById('queue-container'),
                 statusMessage: document.getElementById('status-message'),
@@ -290,13 +284,24 @@
             }
             function updateUI() {
                 elements.queueName.textContent = currentDataStructure.name;
-                elements.explanationText.innerHTML = currentDataStructure.explanation.map(line => `<p>${line}</p>`).join('');
                 elements.typeButtons.forEach(btn => {
                     btn.classList.toggle('btn-active', btn.dataset.type === currentQueueType);
                     btn.classList.toggle('btn-inactive', btn.dataset.type !== currentQueueType);
                 });
                 elements.visualizationArea.classList.toggle('is-lifo', currentQueueType === 'LIFO');
                 elements.queueContainer.innerHTML = '';
+
+                if (currentQueueType !== 'LIFO' && !isQueueViewInitialized) {
+                    elements.queueContainer.innerHTML = `<p class="text-gray-500 text-center px-4">Set kapasitas dan klik "Set Kapasitas" untuk memulai.</p>`;
+                    const statusDisplay = document.getElementById('queue-status-display');
+                    if (statusDisplay) statusDisplay.innerHTML = '';
+                    return;
+                }
+                if (currentQueueType === 'LIFO' && conversionSteps.length === 0) {
+                    elements.queueContainer.innerHTML = `<p class="text-gray-500 text-center px-4">Atur variabel & ekspresi, lalu jalankan aksi untuk memulai.</p>`;
+                    return;
+                }
+
                 let itemsToRender = []; let capacity = 8;
                 if (currentQueueType === 'LIFO') {
                     itemsToRender = conversionSteps.length > 0 ? conversionSteps[currentStepIndex]?.stack || [] : [];
@@ -382,9 +387,22 @@
             }
 
             // --- EVENT HANDLERS ---
-            function resetState() {
+            function changeType(type) {
+                currentQueueType = type;
+                isQueueViewInitialized = false;
+                conversionSteps = [];
+                currentStepIndex = 0;
+                resetState(true); // Soft reset
+            }
+            
+            function resetState(isTypeChange = false) {
                 const capacityEl = document.getElementById('capacity-input');
                 const capacity = capacityEl ? parseInt(capacityEl.value) || 8 : 8;
+                
+                if(!isTypeChange) {
+                    isQueueViewInitialized = true;
+                }
+
                 switch (currentQueueType) {
                     case 'LIFO': currentDataStructure = new LIFOQueue(); break;
                     case 'ArrayQueue': currentDataStructure = new ArrayQueue(capacity); break;
@@ -392,10 +410,17 @@
                     case 'Priority': currentDataStructure = new PriorityQueue(capacity); break;
                     case 'Circular': currentDataStructure = new CircularQueue(capacity); break;
                 }
-                conversionSteps = []; currentStepIndex = 0;
-                elements.statusMessage.textContent = '';
-                elements.operationLog.innerHTML = '<p class="text-gray-500 text-center">Silakan mulai operasi.</p>';
-                renderControls(); updateUI();
+                
+                if (isTypeChange) {
+                    elements.statusMessage.textContent = '';
+                    elements.operationLog.innerHTML = '<p class="text-gray-500 text-center">Silakan mulai operasi.</p>';
+                    renderControls();
+                } else {
+                     elements.statusMessage.textContent = `Kapasitas diatur ke ${capacity}.`;
+                     elements.operationLog.innerHTML = '<p class="text-gray-500 text-center">Antrean dikosongkan.</p>';
+                }
+                
+                updateUI();
             }
 
             function startConversion(type) {
@@ -419,6 +444,10 @@
             }
 
             function handleSimpleQueueOp(op) {
+                if (!isQueueViewInitialized) {
+                    elements.statusMessage.textContent = 'Set kapasitas terlebih dahulu!';
+                    return;
+                }
                 const valueEl = document.getElementById('value-input');
                 let result, opName, value;
                 switch(op) {
@@ -447,8 +476,7 @@
 
             // --- EVENT LISTENERS ---
             elements.typeButtons.forEach(button => button.addEventListener('click', (e) => {
-                currentQueueType = e.target.dataset.type;
-                resetState();
+                changeType(e.target.dataset.type);
             }));
 
             elements.controlsContainer.addEventListener('click', (e) => {
@@ -475,7 +503,7 @@
                     delete variableValues[name]; renderVariableList();
                 }
                 // Other Queues
-                else if (targetId === 'reset-btn') resetState();
+                else if (targetId === 'reset-btn') resetState(false);
                 else if (targetId === 'enqueue-btn') handleSimpleQueueOp('enqueue');
                 else if (targetId === 'dequeue-btn') handleSimpleQueueOp('dequeue');
                 else if (targetId === 'peek-btn') handleSimpleQueueOp('peek');
@@ -489,7 +517,7 @@
             });
 
             // --- INITIAL RENDER ---
-            resetState();
+            changeType('LIFO');
         });
     </script>
 </body>
